@@ -1,1 +1,104 @@
-<h1>Welcome to Ads Home</h1>
+{% extends 'user/base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<form method="POST" action="{% url 'scrape' %}">
+    {% csrf_token %}
+    
+    <div class="container">
+        <div class="row">
+
+            <!-- Column for Video IDs -->
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label for="video-checkboxes" class="form-label"><strong>Select Video IDs:</strong></label>
+                    <!-- Select All checkbox for Videos -->
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="select-all-videos">
+                        <label class="form-check-label" for="select-all-videos">Select All Videos</label>
+                    </div>
+                    <div class="scrollable-checkboxes">
+                        {% for video in videos %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input video-checkbox" name="selected_videos" value="{{ video.video_id }}">
+                                <label class="form-check-label">{{ video.video_id }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary">Scrape</button>
+    </div>
+</form>
+
+<style>
+    .scrollable-checkboxes {
+        max-height: 200px; /* Adjust this value as needed */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
+
+<!-- Scrapped History Table -->
+<div class="container mt-5">
+    <h2>Scrapped History</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SL</th>
+                <th>Video ID</th>
+                <th>Video Posted Date</th>
+                <th>Account Name</th>
+                <th>Video Description</th>
+                <th>Video Tags</th>
+                <th>Scrapping Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in scrapped_history %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ record.video_id }}</td>
+                    <td>{{ record.post_date }}</td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.video_description }}</td>
+                    <td>{{ record.video_tags }}</td>
+                    <td>{{ record.created_at }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No records found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<div class="col-md-6 offset-md-3">
+    <h1>Login</h1>
+    <br>
+    <form method="POST" action="{% url 'home' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" name="username" placeholder="Username" required>
+        </div>
+        <br>
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-secondary">Login</button>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}
