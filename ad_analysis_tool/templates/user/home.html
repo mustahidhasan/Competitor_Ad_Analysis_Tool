@@ -4,40 +4,9 @@
 
 {% if user.is_authenticated %}
 
-<form method="POST" action="{% url 'scrape' %}">
-    {% csrf_token %}
-    
-    <div class="container">
-        <div class="row">
+<h1>This is home page</h1>
 
-            <!-- Column for Video IDs -->
-            <div class="col-md-12">
-                <div class="mb-3">
-                    <label for="video-checkboxes" class="form-label"><strong>Select Video IDs:</strong></label>
-                    <!-- Select All checkbox for Videos -->
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="select-all-videos">
-                        <label class="form-check-label" for="select-all-videos">Select All Videos</label>
-                    </div>
-                    <div class="scrollable-checkboxes">
-                        {% for video in videos %}
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input video-checkbox" name="selected_videos" value="{{ video.video_id }}">
-                                <label class="form-check-label">{{ video.video_id }}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="text-center mt-3">
-        <button type="submit" class="btn btn-primary">Scrape</button>
-    </div>
-</form>
-
-<style>
+<!-- <style>
     .scrollable-checkboxes {
         max-height: 200px; /* Adjust this value as needed */
         overflow-y: auto;
@@ -45,10 +14,10 @@
         padding: 10px;
         border-radius: 5px;
     }
-</style>
+</style> -->
 
 <!-- Scrapped History Table -->
-<div class="container mt-5">
+<!-- <div class="container mt-5">
     <h2>Scrapped History</h2>
     <table class="table table-bordered">
         <thead>
@@ -80,9 +49,9 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
+</div> -->
 
-{% else %}
+<!-- {% else %}
 <div class="col-md-6 offset-md-3">
     <h1>Login</h1>
     <br>
@@ -98,7 +67,7 @@
         <br>
         <button type="submit" class="btn btn-secondary">Login</button>
     </form>
-</div>
+</div> -->
 {% endif %}
 
 {% endblock %}
