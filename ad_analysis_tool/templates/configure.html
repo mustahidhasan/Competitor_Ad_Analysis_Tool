@@ -3,7 +3,15 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-
+<style>
+    .break-word-column {
+        max-width: 150px; /* Adjust width as needed */
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: normal; /* Ensures wrapping is enabled */
+    }
+    
+</style>
 <div class="container mt-5">
     <!-- Form to Add New Configuration -->
     <form method="POST" action="save_configuration">
@@ -54,7 +62,7 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>{{ config.configure_name }}</td>
-                        <td>{{ config.ACCESS_TOKEN }}</td>
+                        <td class="break-word-column">{{ config.ACCESS_TOKEN }}</td>
                         <td>{{ config.APP_ID }}</td>
                         <td>{{ config.APP_SECRET }}</td>
                         <td>
