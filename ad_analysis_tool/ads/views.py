@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Configure
+from .models import Configure, SaveRawAdsData
 from .fetch_ads_facebook import FacebookAd  # Import the FacebookAd class
 from .fetch_ads_messanger import MessangerAd
 from .fetch_ads_insta import InstagramAd
@@ -25,6 +25,10 @@ def generate_ads(request):
                     facebook_ad = FacebookAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
                     # Call the method to fetch ads from Facebook
                     facebook_ad_data = facebook_ad.get_ads_facebook()
+                    SaveRawAdsData.objects.create(
+                        platform_name = platform,
+                        raw_data = facebook_ad_data
+                    )
                     print("line 26", facebook_ad_data)
 
                     # You can also render some success message or data to the template if needed
@@ -36,6 +40,10 @@ def generate_ads(request):
                     messanger_ad = MessangerAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
                     # Call the method to fetch ads from Facebook
                     messanger_ad_data = messanger_ad.get_ads_messanger()
+                    SaveRawAdsData.objects.create(
+                        platform_name = platform,
+                        raw_data = messanger_ad_data
+                    )
                     print("line 39", messanger_ad_data)
 
                     # You can also render some success message or data to the template if needed
@@ -47,6 +55,10 @@ def generate_ads(request):
                     insta_ad = InstagramAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
                     # Call the method to fetch ads from Facebook
                     insta_ad_data = insta_ad.get_ads_instagram()
+                    SaveRawAdsData.objects.create(
+                        platform_name = platform,
+                        raw_data = insta_ad_data
+                    )
                     print("line 50", insta_ad_data)
 
                     # You can also render some success message or data to the template if needed
