@@ -4,11 +4,49 @@
 
 {% if user.is_authenticated %}
 
-<!-- Scrapped History Table -->
 <div class="container mt-5">
-    <h2>Home page</h2>
+    <h2>Generate new ad</h2>
+    <hr>
     
+    <!-- Dropdown for Saved Configurations -->
+    <form method="POST" action="process_selection">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="configuration"><strong>Select Configuration</strong></label>
+            <select class="form-control" id="configuration" name="configuration">
+                {% for config in configurations %}
+                <option value="{{ config.id }}">{{ config.configure_name }}</option>
+                {% empty %}
+                <option disabled>No configurations available</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        
+        <!-- Checkboxes for Platforms -->
+        <div class="form-group">
+            <label><strong>Select Platforms</strong></label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="facebook" name="platforms" value="facebook">
+                <label class="form-check-label" for="facebook">Facebook</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="messenger" name="platforms" value="messenger">
+                <label class="form-check-label" for="messenger">Messenger</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="instagram" name="platforms" value="instagram">
+                <label class="form-check-label" for="instagram">Instagram</label>
+            </div>
+        </div>
+        <br>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
 </div>
+
 
 {% else %}
 <div class="col-md-6 offset-md-3">
