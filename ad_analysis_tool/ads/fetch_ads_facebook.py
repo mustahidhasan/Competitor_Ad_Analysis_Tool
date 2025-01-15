@@ -5,20 +5,18 @@ from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.ad import Ad
 from facebook_business.adobjects.adcreative import AdCreative
 from facebook_business.adobjects.adset import AdSet
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
 
 class FacebookAd:
 
-    def __init__(self):
+    def __init__(self, ACCESS_TOKEN,APP_ID,APP_SECRET):
         # Step 1: Initialize the API
-        ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-        APP_ID = os.getenv("APP_ID")
-        APP_SECRET = os.getenv("APP_SECRET")
+        self.ACCESS_TOKEN = ACCESS_TOKEN
+        self.APP_ID = APP_ID
+        self.APP_SECRET = APP_SECRET
 
-        FacebookAdsApi.init(access_token=ACCESS_TOKEN, app_id=APP_ID, app_secret=APP_SECRET)
+        FacebookAdsApi.init(access_token=self.ACCESS_TOKEN, app_id=self.APP_ID, app_secret=self.APP_SECRET)
 
         # Step 1: Fetch Ad Account Details
         print("Fetching Ad Accounts...")
@@ -91,10 +89,7 @@ class FacebookAd:
 
         # Convert the all_ads list to JSON format
         json_output = json.dumps(all_ads, indent=4)
-        print(json_output)
+        # print(json_output)
+        return json_output
 
-        print("\nProcess Complete!")
 
-if __name__ == "__main__":
-    facebook_ad = FacebookAd()
-    facebook_ad.get_ads_facebook()

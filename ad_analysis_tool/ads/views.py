@@ -1,6 +1,45 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Configure
+from .fetch_ads_facebook import FacebookAd  # Import the FacebookAd class
+
+def generate_ads(request):
+    if request.method == "POST":
+        # Get the selected configuration ID from the form
+        config_id = request.POST.get("configuration")
+        platform = request.POST.get("platforms")
+        
+        if config_id:
+            # Fetch the selected configuration from the database
+            config = get_object_or_404(Configure, id=config_id)
+
+            # Extract the credentials (ACCESS_TOKEN, APP_ID, APP_SECRET) from the selected configuration
+            ACCESS_TOKEN = config.ACCESS_TOKEN  # Ensure you have these fields in your Configure model
+            APP_ID = config.APP_ID
+            APP_SECRET = config.APP_SECRET
+
+            try:
+                if platform == "facebook":
+                    # Create an instance of the FacebookAd class with the retrieved credentials
+                    facebook_ad = FacebookAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
+                    # Call the method to fetch ads from Facebook
+                    facebook_ad_data = facebook_ad.get_ads_facebook()
+                    print("line 26", facebook_ad_data)
+
+                    # You can also render some success message or data to the template if needed
+                    messages.success(request, "Ads fetched successfully!")
+                    return redirect("home")  # Redirect to home after successful fetch
+                
+
+            except Exception as e:
+                messages.error(request, f"Error fetching ads: {e}")
+                return redirect("home")
+
+    else:
+        # If GET request, render the page with available configurations
+        configurations = Configure.objects.all()  # Get all configurations available
+        return render(request, "home.html", {"configurations": configurations})
+
 
 def configure(request):
     # Fetch all configurations to display in the table
