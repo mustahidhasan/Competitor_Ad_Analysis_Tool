@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Configure(models.Model):
-    configure_name = models.CharField(max_length=50, null=True)
+    configure_name = models.CharField(max_length=50, null=True, unique=True)
     ACCESS_TOKEN = models.TextField(null=True)
     APP_ID = models.CharField(max_length=200, null=True)
     APP_SECRET = models.CharField(max_length=200, null=True)
