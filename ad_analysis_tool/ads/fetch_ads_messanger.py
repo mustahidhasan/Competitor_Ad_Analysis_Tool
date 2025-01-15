@@ -12,14 +12,16 @@ load_dotenv()
 
 class MessangerAd:
 
-    def __init__(self):
-        # Initialize the API
-        ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-        APP_ID = os.getenv("APP_ID")
-        APP_SECRET = os.getenv("APP_SECRET")
-        FacebookAdsApi.init(access_token=ACCESS_TOKEN, app_id=APP_ID, app_secret=APP_SECRET)
+    def __init__(self, ACCESS_TOKEN,APP_ID,APP_SECRET):
+        # Step 1: Initialize the API
+        self.ACCESS_TOKEN = ACCESS_TOKEN
+        self.APP_ID = APP_ID
+        self.APP_SECRET = APP_SECRET
 
-        # Fetch the Ad Account details
+        FacebookAdsApi.init(access_token=self.ACCESS_TOKEN, app_id=self.APP_ID, app_secret=self.APP_SECRET)
+
+        # Step 1: Fetch Ad Account Details
+        print("Fetching Ad Accounts...")
         me = User(fbid='me')
         self.accounts = me.get_ad_accounts(fields=['id', 'name', 'account_status'])
 
@@ -84,8 +86,6 @@ class MessangerAd:
 
         # Print the structured data as JSON
         print("\n--- Messenger Ads Data (JSON Format) ---")
-        print(json.dumps(messenger_ads_data, indent=4))
+        messanger_output = json.dumps(messenger_ads_data, indent=4)
+        return messanger_output
 
-if __name__ == "__main__":
-    messanger_ad = MessangerAd()
-    messanger_ad.get_ads_messanger()

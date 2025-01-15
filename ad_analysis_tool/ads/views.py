@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Configure
 from .fetch_ads_facebook import FacebookAd  # Import the FacebookAd class
-
+from .fetch_ads_messanger import MessangerAd
+from .fetch_ads_insta import InstagramAd
 def generate_ads(request):
     if request.method == "POST":
         # Get the selected configuration ID from the form
@@ -27,10 +28,34 @@ def generate_ads(request):
                     print("line 26", facebook_ad_data)
 
                     # You can also render some success message or data to the template if needed
-                    messages.success(request, "Ads fetched successfully!")
+                    messages.success(request, "Facebook Ads fetched successfully!")
                     return redirect("home")  # Redirect to home after successful fetch
                 
+                elif platform == "messenger":
+                    # Create an instance of the messanger class with the retrieved credentials
+                    messanger_ad = MessangerAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
+                    # Call the method to fetch ads from Facebook
+                    messanger_ad_data = messanger_ad.get_ads_messanger()
+                    print("line 39", messanger_ad_data)
 
+                    # You can also render some success message or data to the template if needed
+                    messages.success(request, "Messanger Ads fetched successfully!")
+                    return redirect("home")  # Redirect to home after successful fetch
+                
+                elif platform == "instagram":
+                    # Create an instance of the insta class with the retrieved credentials
+                    insta_ad = InstagramAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
+                    # Call the method to fetch ads from Facebook
+                    insta_ad_data = insta_ad.get_ads_instagram()
+                    print("line 50", insta_ad_data)
+
+                    # You can also render some success message or data to the template if needed
+                    messages.success(request, "Insta Ads fetched successfully!")
+                    return redirect("home")  # Redirect to home after successful fetch
+
+                else:
+                    messages.error(request, "Ads did not fetched!")
+                    return redirect("home")  # Redirect to home after successful fetch
             except Exception as e:
                 messages.error(request, f"Error fetching ads: {e}")
                 return redirect("home")

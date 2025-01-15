@@ -12,12 +12,13 @@ load_dotenv()
 
 class InstagramAd:
 
-    def __init__(self):
-        # Initialize the API
-        ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
-        APP_ID = os.getenv("APP_ID")
-        APP_SECRET = os.getenv("APP_SECRET")
-        FacebookAdsApi.init(access_token=ACCESS_TOKEN, app_id=APP_ID, app_secret=APP_SECRET)
+    def __init__(self, ACCESS_TOKEN,APP_ID,APP_SECRET):
+        # Step 1: Initialize the API
+        self.ACCESS_TOKEN = ACCESS_TOKEN
+        self.APP_ID = APP_ID
+        self.APP_SECRET = APP_SECRET
+
+        FacebookAdsApi.init(access_token=self.ACCESS_TOKEN, app_id=self.APP_ID, app_secret=self.APP_SECRET)
 
         # Step 1: Fetch Ad Account Details
         print("Fetching Ad Accounts...")
@@ -95,10 +96,6 @@ class InstagramAd:
 
             # Print the structured data as JSON for Instagram Ads
             print("\n--- Instagram Ads Data (JSON Format) ---")
-            print(json.dumps(instagram_ads_data, indent=4))
-
-        print("\nProcess Complete!")
-
-if __name__ == "__main__":
-    instagram_ad = InstagramAd()
-    instagram_ad.get_ads_instagram()
+            insta_output = json.dumps(instagram_ads_data, indent=4)
+        return insta_output
+        # print("\nProcess Complete!")
