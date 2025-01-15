@@ -1,3 +1,4 @@
+import json
 from facebook_business.api import FacebookAdsApi
 from facebook_business.adobjects.user import User
 from facebook_business.adobjects.adaccount import AdAccount
@@ -23,7 +24,7 @@ class InstagramAd:
         me = User(fbid='me')
         self.accounts = me.get_ad_accounts(fields=['id', 'name', 'account_status'])
 
-    def get_ad_instagram(self):
+    def get_ads_instagram(self):
         if not self.accounts:
             print("No ad accounts found.")
             exit()
@@ -45,43 +46,59 @@ class InstagramAd:
             Ad.Field.creative,
             Ad.Field.created_time,
             Ad.Field.updated_time,
+            AdSet.Field.targeting,  # Adding targeting to check for Instagram
         ])
 
         if not ads:
             print("No ads found for this account.")
         else:
+            instagram_ads = []
             for ad in ads:
-                print("\n--- Ad Details ---")
-                print(f"Ad ID: {ad.get('id', 'N/A')}")
-                print(f"Ad Name: {ad.get('name', 'Unnamed Ad')}")
-                print(f"Status: {ad.get('status', 'N/A')}")
-                print(f"Effective Status: {ad.get('effective_status', 'N/A')}")
-                print(f"Ad Set ID: {ad.get('adset_id', 'N/A')}")
-                print(f"Campaign ID: {ad.get('campaign_id', 'N/A')}")
-                print(f"Creative ID: {ad.get('creative', {}).get('creative_id', 'No Creative Found')}")
-                print(f"Created Time: {ad.get('created_time', 'N/A')}")
-                print(f"Updated Time: {ad.get('updated_time', 'N/A')}")
+                targeting = ad.get('targeting', {})
+                publisher_platforms = targeting.get("publisher_platforms", [])
+                
+                # Check if 'instagram' is in the publisher_platforms list
+                if 'instagram' in publisher_platforms:
+                    instagram_ads.append(ad)
 
-                # Fetch the Creative Media (Image/Video)
-                creative_id = ad['creative']['id'] if 'creative' in ad else None
-                if creative_id:
-                    creative = AdCreative(creative_id).api_get(fields=[
-                        AdCreative.Field.id,
-                        AdCreative.Field.name,
-                        AdCreative.Field.image_url,    # Image URL for ad
-                        AdCreative.Field.video_id,     # Video ID for ad
-                        AdCreative.Field.thumbnail_url,  # Thumbnail URL for video
-                    ])
-                    print(f"Creative Name: {creative['name']}")
-                    if 'image_url' in creative:
-                        print(f"Image URL: {creative['image_url']}")
-                    if 'video_id' in creative:
-                        print(f"Video ID: {creative['video_id']}")
-                    if 'thumbnail_url' in creative:
-                        print(f"Thumbnail URL: {creative['thumbnail_url']}")
+            # Create a list to store the structured JSON data for Instagram Ads
+            instagram_ads_data = []
+
+            # Get the creative (image/video) details for Instagram Ads
+            for ad in instagram_ads:
+                creative_id = ad['creative']['id']  # Get the creative ID from the ad
+                creative = AdCreative(creative_id).api_get(fields=[
+                    AdCreative.Field.id,
+                    AdCreative.Field.name,
+                    AdCreative.Field.thumbnail_url,  # Thumbnail image URL (if exists)
+                    AdCreative.Field.image_url,       # Image URL (if exists)
+                    AdCreative.Field.video_id,        # Video ID (if exists)
+                ])
+
+                # Create the JSON structure for this Instagram ad
+                ad_data = {
+                    'ad_id': ad['id'],
+                    'ad_name': ad['name'],
+                    'status': ad['status'],
+                    'effective_status': ad['effective_status'],
+                    'created_time': ad['created_time'],
+                    'updated_time': ad['updated_time'],
+                    'creative_id': creative_id,
+                    'creative_name': creative['name'],
+                    'image_url': creative.get('image_url', None),
+                    'video_id': creative.get('video_id', None),
+                    'thumbnail_url': creative.get('thumbnail_url', None),
+                }
+
+                # Append to the list of Instagram ads data
+                instagram_ads_data.append(ad_data)
+
+            # Print the structured data as JSON for Instagram Ads
+            print("\n--- Instagram Ads Data (JSON Format) ---")
+            print(json.dumps(instagram_ads_data, indent=4))
 
         print("\nProcess Complete!")
-        
+
 if __name__ == "__main__":
-    facebook_ad = InstagramAd()
-    facebook_ad.get_ad_instagram()
+    instagram_ad = InstagramAd()
+    instagram_ad.get_ads_instagram()
