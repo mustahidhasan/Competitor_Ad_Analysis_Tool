@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Configure(models.Model):
     configure_name = models.CharField(max_length=50, null=True, unique=True)
@@ -8,7 +9,8 @@ class Configure(models.Model):
     APP_SECRET = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return f'{self.configure_name} - {self.APP_ID}'
+        return f"{self.configure_name} - {self.APP_ID}"
+
 
 class SaveRawAdsData(models.Model):
     platform_name = models.CharField(max_length=100, null=True)

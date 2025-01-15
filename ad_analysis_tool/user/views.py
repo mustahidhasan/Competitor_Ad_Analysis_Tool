@@ -20,19 +20,26 @@ def home(request):
                 messages.success(request, "You have been logged in")
                 return redirect("home")
             else:
-                messages.error(request, "There was an error logging in. Please try again.")
+                messages.error(
+                    request, "There was an error logging in. Please try again."
+                )
                 return redirect("home")
 
         elif "configuration" in request.POST and "platforms" in request.POST:
             # Handle the selection of configuration and platforms for generating new ad
             selected_configuration = request.POST["configuration"]
-            selected_platforms = request.POST.getlist("platforms")  # Multiple platforms can be selected
-            
+            selected_platforms = request.POST.getlist(
+                "platforms"
+            )  # Multiple platforms can be selected
+
             # Process the selected configuration and platforms here (e.g., save or generate ads)
-            messages.success(request, f"Ad generation selected for configuration: {selected_configuration} and platforms: {', '.join(selected_platforms)}")
+            messages.success(
+                request,
+                f"Ad generation selected for configuration: {selected_configuration} and platforms: {', '.join(selected_platforms)}",
+            )
 
             return redirect("home")
-    
+
     if request.user.is_authenticated:
         # If the user is logged in, fetch configurations
         configurations = Configure.objects.all()
