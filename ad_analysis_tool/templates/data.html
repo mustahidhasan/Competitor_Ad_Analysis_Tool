@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<div class="container mt-5">
+    <h2>All Data</h2>
+    <hr>
+
+    <!-- Scrollable Table -->
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Platform</th>
+                    <th>Ad ID</th>
+                    <th>Ad Name</th>
+                    <th>Status</th>
+                    <th>Effective Status</th>
+                    <th>Created Time</th>
+                    <th>Updated Time</th>
+                    <th>Creative Name</th>
+                    <th>Image URL</th>
+                    <th>Video ID</th>
+                    <th>Thumbnail URL</th>
+                    <th>Data saved at</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in ads %}
+                <tr>
+                    <td>{{ ad.platform_name }}</td>
+                    <td>{{ ad.ad_id }}</td>
+                    <td>{{ ad.ad_name }}</td>
+                    <td>{{ ad.status }}</td>
+                    <td>{{ ad.effective_status }}</td>
+                    <td>{{ ad.created_time }}</td>
+                    <td>{{ ad.updated_time }}</td>
+                    <td>{{ ad.creative_name }}</td>
+                    <td><a href="{{ ad.image_url }}" target="_blank">Image</a></td>
+                    <td>{{ ad.video_id }}</td>
+                    <td><a href="{{ ad.thumbnail_url }}" target="_blank">Thumbnail</a></td>
+                    <td>{{ ad.created_at }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% else %}
+<div class="col-md-6 offset-md-3">
+    <h1>Login</h1>
+    <br>
+    <form method="POST" action="{% url 'home' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" name="username" placeholder="Username" required>
+        </div>
+        <br>
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Password" required>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-secondary">Login</button>
+    </form>
+</div>
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{% endblock %}
