@@ -12,4 +12,5 @@ urlpatterns = [
         name="delete_configuration",
     ),  # Delete configuration
     path("generate_ads", views.generate_ads, name="generate_ads"),
+    path('data/', views.data, name="data")
 ]

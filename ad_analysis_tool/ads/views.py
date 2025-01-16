@@ -125,3 +125,11 @@ def delete_configuration(request, config_id):
     config.delete()
     messages.success(request, "Configuration deleted successfully.")
     return redirect("configure")  # Redirect back to the configure page
+
+def data(request):
+    if request.user.is_authenticated:
+        # Fetch all ad data from the database
+        ads = SaveRawAdsData.objects.all().order_by('-created_at')  # Or filter by platform or other criteria if needed
+        return render(request, 'data.html', {'ads': ads})
+
+    return render(request, 'data.html')
