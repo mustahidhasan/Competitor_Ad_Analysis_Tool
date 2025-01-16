@@ -8,7 +8,7 @@ from .fetch_ads_insta import InstagramAd
 
 def generate_ads(request):
     if request.method == "POST":
-        # Get the selected configuration ID from the form
+        # Get the selected configuration ID and platform from the form
         config_id = request.POST.get("configuration")
         platform = request.POST.get("platforms")
 
@@ -16,67 +16,78 @@ def generate_ads(request):
             # Fetch the selected configuration from the database
             config = get_object_or_404(Configure, id=config_id)
 
-            # Extract the credentials (ACCESS_TOKEN, APP_ID, APP_SECRET) from the selected configuration
-            ACCESS_TOKEN = (
-                config.ACCESS_TOKEN
-            )  # Ensure you have these fields in your Configure model
+            # Extract credentials from the selected configuration
+            ACCESS_TOKEN = config.ACCESS_TOKEN
             APP_ID = config.APP_ID
             APP_SECRET = config.APP_SECRET
 
             try:
+                # Fetch ads data based on the selected platform
                 if platform == "facebook":
-                    # Create an instance of the FacebookAd class with the retrieved credentials
                     facebook_ad = FacebookAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
-                    # Call the method to fetch ads from Facebook
-                    facebook_ad_data = facebook_ad.get_ads_facebook()
-                    SaveRawAdsData.objects.create(
-                        platform_name=platform, raw_data=facebook_ad_data
-                    )
-                    print("line 26", facebook_ad_data)
-
-                    # You can also render some success message or data to the template if needed
-                    messages.success(request, "Facebook Ads fetched successfully!")
-                    return redirect("home")  # Redirect to home after successful fetch
+                    ads_data = facebook_ad.get_ads_facebook()
 
                 elif platform == "messenger":
-                    # Create an instance of the messanger class with the retrieved credentials
                     messanger_ad = MessangerAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
-                    # Call the method to fetch ads from Facebook
-                    messanger_ad_data = messanger_ad.get_ads_messanger()
-                    SaveRawAdsData.objects.create(
-                        platform_name=platform, raw_data=messanger_ad_data
-                    )
-                    print("line 39", messanger_ad_data)
-
-                    # You can also render some success message or data to the template if needed
-                    messages.success(request, "Messanger Ads fetched successfully!")
-                    return redirect("home")  # Redirect to home after successful fetch
+                    ads_data = messanger_ad.get_ads_messanger()
 
                 elif platform == "instagram":
-                    # Create an instance of the insta class with the retrieved credentials
                     insta_ad = InstagramAd(ACCESS_TOKEN, APP_ID, APP_SECRET)
-                    # Call the method to fetch ads from Facebook
-                    insta_ad_data = insta_ad.get_ads_instagram()
-                    SaveRawAdsData.objects.create(
-                        platform_name=platform, raw_data=insta_ad_data
-                    )
-                    print("line 50", insta_ad_data)
-
-                    # You can also render some success message or data to the template if needed
-                    messages.success(request, "Insta Ads fetched successfully!")
-                    return redirect("home")  # Redirect to home after successful fetch
+                    ads_data = insta_ad.get_ads_instagram()
 
                 else:
-                    messages.error(request, "Ads did not fetched!")
-                    return redirect("home")  # Redirect to home after successful fetch
+                    messages.error(request, "Invalid platform selected!")
+                    return redirect("home")
+
+                # Save each ad individually in the database, checking for redundancy
+                for ad in ads_data:
+                    ad_id = ad.get("ad_id")
+
+                    if not ad_id:
+                        print(f"Skipping ad due to missing 'ad_id': {ad}")
+                        continue  # Skip this ad if 'ad_id' is missing
+
+                    # Check for redundancy based on platform and ad_id (ensure ad_id is unique per platform)
+                    if not SaveRawAdsData.objects.filter(platform_name=platform, ad_id=ad_id).exists():
+                        creative = ad.get("creative", {})
+
+                        # Handle cases where 'creative' data might be missing or incomplete
+                        image_url = creative.get("image_url", ad.get("image_url", None))
+                        video_id = creative.get("video_id", ad.get("video_id", None))
+                        thumbnail_url = creative.get("thumbnail_url", ad.get("thumbnail_url", None))
+
+                        SaveRawAdsData.objects.create(
+                            platform_name=platform,
+                            ad_id=ad["ad_id"],  # Ensure correct key for ad_id
+                            ad_name=ad["ad_name"],
+                            status=ad["status"],
+                            effective_status=ad["effective_status"],
+                            created_time=ad["created_time"],
+                            updated_time=ad["updated_time"],
+                            creative_id=creative.get("id", None),
+                            creative_name=creative.get("name", None),
+                            image_url=image_url,
+                            video_id=video_id,
+                            thumbnail_url=thumbnail_url,
+                            raw_data=ad,  # Save the entire JSON data for reference
+                        )
+                        messages.success(request, f"{platform.capitalize()} Ads fetched successfully!")
+                    else:
+                        messages.error(request, f"Ad with ID {ad_id} already exists for platform {platform}. Skipping.")
+                        print(f"Ad with ID {ad_id} already exists for platform {platform}. Skipping.")
+
+                
+                return redirect("home")
+
             except Exception as e:
                 messages.error(request, f"Error fetching ads: {e}")
                 return redirect("home")
 
     else:
         # If GET request, render the page with available configurations
-        configurations = Configure.objects.all()  # Get all configurations available
+        configurations = Configure.objects.all()
         return render(request, "home.html", {"configurations": configurations})
+
 
 
 def configure(request):
