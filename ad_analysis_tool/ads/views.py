@@ -133,3 +133,7 @@ def data(request):
         return render(request, 'data.html', {'ads': ads})
 
     return render(request, 'data.html')
+
+def analysis_data(request):
+    
+    return render(request, 'analysis_data.html')
