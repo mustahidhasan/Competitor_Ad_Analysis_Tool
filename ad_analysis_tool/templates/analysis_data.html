@@ -7,9 +7,33 @@
 <div class="container mt-5">
     <h2>Analysis Data</h2>
     <hr>
-
     
-
+    <!-- Make the table responsive and scrollable -->
+    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ad ID</th>
+                    <th>Ad Name</th>
+                    <th>Status Comparison</th>
+                    <th>Time Comparison</th>
+                    <th>Creative Comparison</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through the list of dictionaries -->
+                {% for row in analysis_df %}
+                    <tr>
+                        <td>{{ row.ad_id }}</td>
+                        <td>{{ row.ad_name }}</td>
+                        <td>{{ row.status_comparison }}</td>
+                        <td>{{ row.time_comparison }}</td>
+                        <td>{{ row.creative_comparison }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% else %}

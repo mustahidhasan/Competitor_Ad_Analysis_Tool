@@ -5,7 +5,7 @@ from .fetch_ads_facebook import FacebookAd  # Import the FacebookAd class
 from .fetch_ads_messanger import MessangerAd
 from .fetch_ads_insta import InstagramAd
 
-
+from .analyse_ad import AdAnalyse
 def generate_ads(request):
     if request.method == "POST":
         # Get the selected configuration ID and platform from the form
@@ -135,5 +135,22 @@ def data(request):
     return render(request, 'data.html')
 
 def analysis_data(request):
+    data_all = []
+    ads = SaveRawAdsData.objects.all().order_by('-created_at')
+    for ad in ads:
+        data_all.append(ad.raw_data)
     
-    return render(request, 'analysis_data.html')
+    # Create an instance of the AdAnalyse class
+    ad_analyse = AdAnalyse(data_all)
+
+    # Process the data
+    ad_analyse.process_data()
+
+    # Perform the comparative analysis
+    analysis_df = ad_analyse.comparative_analysis()
+
+    # Convert DataFrame to a list of dictionaries to pass to the template
+    analysis_data = analysis_df.to_dict(orient='records')
+
+    # Return the data to the template
+    return render(request, 'analysis_data.html', {"analysis_df": analysis_data})
