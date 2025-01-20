@@ -7,7 +7,7 @@
 <div class="container mt-5">
     <h2>Analysis Data</h2>
     <hr>
-    
+
     <!-- Make the table responsive and scrollable -->
     <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
         <table class="table table-bordered">
@@ -34,6 +34,13 @@
             </tbody>
         </table>
     </div>
+
+    <div class="mt-5">
+        <h3>Comparative Analysis Graph</h3>
+        <!-- Create a canvas element for the chart -->
+        <canvas id="comparisonChart" width="400" height="200"></canvas>
+    </div>
+
 </div>
 
 {% else %}
@@ -56,5 +63,105 @@
 {% endif %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safely pass analysis_df as JSON to JavaScript -->
+{{ analysis_df|json_script:"analysisData" }}
+
+<script>
+    // Retrieve the JSON data from the template
+    const analysisData = JSON.parse(document.getElementById('analysisData').textContent);
+
+    console.log("Analysis Data:", analysisData); // Debugging the data being passed
+
+    // Check if data is present
+    if (analysisData && analysisData.length > 0) {
+        const labels = analysisData.map(row => row.ad_name); // Assuming ad_name is the x-axis
+        
+        // Function to extract status numeric value (1 for ACTIVE, 0 for PAUSED)
+        const extractStatus = (status) => {
+            return status.includes('ACTIVE') ? 1 : (status.includes('PAUSED') ? 0 : NaN);
+        };
+
+        // Function to calculate time difference in days from the 'Created on' timestamp
+        const calculateTimeDifference = (createdOn) => {
+            const createdDate = new Date(createdOn.replace('Created on: ', '').trim());
+            const currentDate = new Date();
+            const timeDiff = (currentDate - createdDate) / (1000 * 3600 * 24); // Time difference in days
+            return timeDiff >= 0 ? timeDiff : 0; // Ensure the value is non-negative
+        };
+
+        // Function to extract creative comparison data (for simplicity, let's assign 1 for non-empty)
+        const extractCreativeComparison = (creativeComparison) => {
+            return creativeComparison ? 1 : 0;
+        };
+
+        // Extract numerical data for chart
+        const statusComparison = analysisData.map(row => extractStatus(row.status_comparison));
+        const timeComparison = analysisData.map(row => calculateTimeDifference(row.time_comparison));
+        const creativeComparison = analysisData.map(row => extractCreativeComparison(row.creative_comparison));
+
+        console.log("Labels:", labels); // Debugging the labels
+        console.log("Status Comparison Data:", statusComparison); // Debugging the dataset
+        console.log("Time Comparison Data:", timeComparison); // Debugging the dataset
+        console.log("Creative Comparison Data:", creativeComparison); // Debugging the dataset
+
+        // Create the time-based trend chart
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const comparisonChart = new Chart(ctx, {
+            type: 'line', // Change chart type to line
+            data: {
+                labels: labels, // Using ad_name as the x-axis (time)
+                datasets: [{
+                    label: 'Status Comparison',
+                    data: statusComparison,
+                    borderColor: 'rgba(75, 192, 192, 1)', // Green color for status
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Light green background
+                    fill: false, // No fill under the line
+                    tension: 0.1, // Smooth the line
+                    borderWidth: 2
+                }, {
+                    label: 'Time Comparison (Days)',
+                    data: timeComparison,
+                    borderColor: 'rgba(153, 102, 255, 1)', // Purple color for time comparison
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)', // Light purple background
+                    fill: false, // No fill under the line
+                    tension: 0.1, // Smooth the line
+                    borderWidth: 2
+                }, {
+                    label: 'Creative Comparison',
+                    data: creativeComparison,
+                    borderColor: 'rgba(255, 159, 64, 1)', // Orange color for creative comparison
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)', // Light orange background
+                    fill: false, // No fill under the line
+                    tension: 0.1, // Smooth the line
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ad Name' // Label for the x-axis
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Comparison Values' // Label for the y-axis
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        console.error("No data available for the chart.");
+    }
+</script>
+
+
 
 {% endblock %}
